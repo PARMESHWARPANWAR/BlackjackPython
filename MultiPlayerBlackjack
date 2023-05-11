@@ -101,15 +101,18 @@ def play_game(num_players):
     # Determine the winner for each player
     for i, player in enumerate(players):
         player_value = player.get_value()
-
+    
         if dealer_value > 21:
             print(f"Dealer busts. Player {i+1} wins!")
+        elif player_value > 21:
+            print(f"Player {i+1} busts. You lose!")
         elif player_value > dealer_value:
             print(f"Player {i+1} wins!")
         elif player_value < dealer_value:
             print(f"Player {i+1} loses!")
         else:
             print(f"Player {i+1} ties with the dealer!")
+        
 
 # Main game loop
 while True:
