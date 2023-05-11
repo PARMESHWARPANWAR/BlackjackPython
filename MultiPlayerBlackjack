@@ -1,0 +1,122 @@
+import random
+
+# Card Class
+class Card:
+    def __init__(self, suit, rank):
+        self.suit = suit
+        self.rank = rank
+
+# Deck Class
+class Deck:
+    def __init__(self):
+        self.cards = []
+
+        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        ranks = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King']
+
+        for suit in suits:
+            for rank in ranks:
+                self.cards.append(Card(suit, rank))
+
+    def shuffle(self):
+        random.shuffle(self.cards)
+
+    def deal_card(self):
+        return self.cards.pop()
+
+# Hand Class
+class Hand:
+    def __init__(self):
+        self.cards = []
+
+    def add_card(self, card):
+        self.cards.append(card)
+
+    def get_value(self):
+        value = 0
+        num_aces = 0
+
+        for card in self.cards:
+            if card.rank == 'Ace':
+                num_aces += 1
+                value += 11
+            elif card.rank in ['King', 'Queen', 'Jack']:
+                value += 10
+            else:
+                value += int(card.rank)
+
+        while value > 21 and num_aces > 0:
+            value -= 10
+            num_aces -= 1
+
+        return value
+
+# Game Logic
+def play_game(num_players):
+    deck = Deck()
+    deck.shuffle()
+
+    players = []
+    for _ in range(num_players):
+        players.append(Hand())
+
+    dealer_hand = Hand()
+
+    # Deal initial cards
+    for player in players:
+        player.add_card(deck.deal_card())
+    dealer_hand.add_card(deck.deal_card())
+    for player in players:
+        player.add_card(deck.deal_card())
+    dealer_hand.add_card(deck.deal_card())
+
+    for i, player in enumerate(players):
+        print(f"Player {i+1}'s hand:", [card.rank for card in player.cards])
+    print("Dealer's hand:", [card.rank for card in dealer_hand.cards[:-1]], "[Hidden]")
+
+    # Player's turn
+    for i, player in enumerate(players):
+        while True:
+            choice = input(f"Player {i+1}, do you want to hit or stand? ").lower()
+
+            if choice == 'hit':
+                player.add_card(deck.deal_card())
+                print(f"Player {i+1}'s hand:", [card.rank for card in player.cards])
+
+                if player.get_value() > 21:
+                    print(f"Player {i+1} busts. You lose!")
+                    break
+
+            elif choice == 'stand':
+                break
+
+    # Dealer's turn
+    while dealer_hand.get_value() < 17:
+        dealer_hand.add_card(deck.deal_card())
+
+    print("Dealer's hand:", [card.rank for card in dealer_hand.cards])
+
+    dealer_value = dealer_hand.get_value()
+
+    # Determine the winner for each player
+    for i, player in enumerate(players):
+        player_value = player.get_value()
+
+        if dealer_value > 21:
+            print(f"Dealer busts. Player {i+1} wins!")
+        elif player_value > dealer_value:
+            print(f"Player {i+1} wins!")
+        elif player_value < dealer_value:
+            print(f"Player {i+1} loses!")
+        else:
+            print(f"Player {i+1} ties with the dealer!")
+
+# Main game loop
+while True:
+    num_players = int(input("Enter the number of players: "))
+    play_game(num_players)
+
+    play_again = input("Do you want to play again? (yes/no): ").lower()
+
+    if play_again != 'yes':
+        break
